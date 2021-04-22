@@ -2,7 +2,7 @@ import EVENTS from '../../events.js';
 import external from '../../externalModules.js';
 import { state } from '../../store/index.js';
 import anyHandlesOutsideImage from './../../manipulators/anyHandlesOutsideImage.js';
-import { moveNewHandle } from '../../manipulators/index.js';
+import { moveHandle, moveNewHandle } from '../../manipulators/index.js';
 import {
   addToolState,
   removeToolState,
@@ -58,7 +58,12 @@ export default function(evt, tool) {
 
   external.cornerstone.updateImage(element);
 
-  moveNewHandle(
+  const handleMover =
+    Object.keys(measurementData.handles).length === 1
+      ? moveHandle
+      : moveNewHandle;
+
+  handleMover(
     touchEventData,
     tool.name,
     measurementData,

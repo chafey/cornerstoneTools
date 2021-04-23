@@ -19,7 +19,7 @@ const series = [
     'image_2.dcm'
 ]
 
-const imageIds = series.map(seriesImage => `${scheme}:${baseUrl}${seriesImage}`
+const imageIds = series.map(seriesImage => `${scheme}:${baseUrl}${seriesImage}`)
 
 // Add our tool, and set it's mode
 const StackScrollTool = cornerstoneTools.StackScrollTool
@@ -27,7 +27,7 @@ const StackScrollTool = cornerstoneTools.StackScrollTool
 //define the stack
 const stack = {
   currentImageIdIndex: 0,
-  imageIds
+  imageIds: imageIds
 }
 
 // load images and set the stack
@@ -37,7 +37,7 @@ cornerstone.loadImage(imageIds[0]).then((image) => {
   cornerstoneTools.addToolState(element, 'stack', stack)
 })
 
-cornerstoneTools.addTool(StackScrollToolTool)
-cornerstoneTools.setToolActive('StackScrollTool', { mouseButtonMask: 1 })
+cornerstoneTools.addTool(StackScrollTool)
+cornerstoneTools.setToolActive('StackScroll', { mouseButtonMask: 1 })
 
 {% endhighlight %}

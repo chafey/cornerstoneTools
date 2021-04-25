@@ -37,6 +37,6 @@ cornerstone.loadImage(imageIds[0]).then((image) => {
 })
 
 cornerstoneTools.addTool(StackScrollMultiTouchTool)
-cornerstoneTools.setToolActive('StackScrollMultiTouchTool', { mouseButtonMask: 1 })
+cornerstoneTools.setToolActive('StackScrollMultiTouch', { mouseButtonMask: 1 })
 
 {% endhighlight %}

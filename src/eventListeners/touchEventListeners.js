@@ -3,7 +3,11 @@ import external from '../externalModules.js';
 import copyPoints from '../util/copyPoints.js';
 import preventGhostClick from './preventGhostClick.js';
 import triggerEvent from '../util/triggerEvent.js';
-import { setToolOptions, getToolOptions } from '../toolOptions.js';
+import {
+  setToolOptions,
+  getToolOptions,
+  clearToolOptions,
+} from '../toolOptions.js';
 
 let startPoints,
   currentPoints,
@@ -605,7 +609,10 @@ function disable(element) {
       'tap doubletap panstart panmove panend pinchstart pinchmove rotatemove',
       onTouch
     );
+    mc.input.destroy();
   }
+  options.hammer = null;
+  clearToolOptions(inputName, element);
 }
 
 // Module exports

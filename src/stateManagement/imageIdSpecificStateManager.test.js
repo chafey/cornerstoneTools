@@ -76,3 +76,36 @@ describe('imageIdSpecificStateManager.add', () => {
     });
   });
 });
+
+describe('imageIdSpecificStateManager.replace', () => {
+  it('replaces data in the existing toolState', () => {
+    const stateManager = newImageIdSpecificToolStateManager();
+    const toolName = 'TestTool';
+    const imageId = 'abc123';
+    const testElement = {
+      image: {
+        imageId,
+      },
+    };
+
+    externalModules.cornerstone.getEnabledElement.mockImplementationOnce(
+      () => testElement
+    );
+
+    // Setup with some intial data
+    stateManager.restoreImageIdToolState(imageId, {
+      [toolName]: { data: ['initialData'] },
+    });
+    // Add more data
+    stateManager.replace(testElement, toolName, {
+      data: ['replacedData1', 'replacedData2'],
+    });
+
+    // Check the results
+    const allToolState = stateManager.saveToolState();
+
+    expect(allToolState[imageId][toolName].data).toEqual(
+      expect.arrayContaining(['replacedData1', 'replacedData2'])
+    );
+  });
+});

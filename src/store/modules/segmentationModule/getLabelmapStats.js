@@ -43,15 +43,6 @@ export default function getLabelmapStats(
       resolve(null);
     }
 
-    const { sufficientMetadata, imagePlanes } = _getImagePlanes(imageIds);
-
-    if (!sufficientMetadata) {
-      logger.warn(
-        'Insufficient imagePlaneModule information to calculate volume statistics.'
-      );
-      resolve(null);
-    }
-
     labelmapIndex =
       labelmapIndex === undefined
         ? brushStackState.activeLabelmapIndex
@@ -66,13 +57,21 @@ export default function getLabelmapStats(
     }
 
     Promise.all(imagePromises).then(images => {
-      const stats = _calculateLabelmapStats(
-        labelmap3D,
-        images,
-        imagePlanes,
-        segmentIndex
-      );
+      let stats;
+      const { sufficientMetadata, imagePlanes } = _getImagePlanes(imageIds);
 
+      if (sufficientMetadata) {
+        stats = _calculateLabelmapStats(
+          labelmap3D,
+          images,
+          imagePlanes,
+          segmentIndex
+        );
+      } else {
+        logger.warn(
+          'Insufficient imagePlaneModule information to calculate volume statistics.'
+        );
+      }
       resolve(stats);
     });
   });

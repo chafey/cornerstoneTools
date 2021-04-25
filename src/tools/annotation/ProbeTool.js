@@ -28,6 +28,24 @@ const logger = getLogger('tools:annotation:ProbeTool');
  */
 export default class ProbeTool extends BaseAnnotationTool {
   constructor(props = {}) {
+    function defaultBuildStatsStr(storedPixels, sp, mo, suv, image) {
+      let str;
+
+      if (image.color) {
+        str = `R: ${storedPixels[0]} G: ${storedPixels[1]} B: ${
+          storedPixels[2]
+        }`;
+      } else {
+        // Draw text
+        str = `SP: ${sp} MO: ${parseFloat(mo.toFixed(3))}`;
+        if (suv) {
+          str += ` SUV: ${parseFloat(suv.toFixed(3))}`;
+        }
+      }
+
+      return str;
+    }
+
     const defaultProps = {
       name: 'Probe',
       supportedInteractionTypes: ['Mouse', 'Touch'],
@@ -35,6 +53,7 @@ export default class ProbeTool extends BaseAnnotationTool {
       configuration: {
         drawHandles: true,
         renderDashed: false,
+        buildStatsStr: defaultBuildStatsStr,
       },
     };
 
@@ -145,6 +164,7 @@ export default class ProbeTool extends BaseAnnotationTool {
     const { image, element } = eventData;
     const fontHeight = textStyle.getFontSize();
     const lineDash = getModule('globalConfiguration').configuration.lineDash;
+    const buildStatsStr = this.configuration.buildStatsStr;
 
     for (let i = 0; i < toolData.data.length; i++) {
       const data = toolData.data[i];
@@ -182,18 +202,7 @@ export default class ProbeTool extends BaseAnnotationTool {
 
         if (x >= 0 && y >= 0 && x < image.columns && y < image.rows) {
           text = `${x}, ${y}`;
-
-          if (image.color) {
-            str = `R: ${storedPixels[0]} G: ${storedPixels[1]} B: ${
-              storedPixels[2]
-            }`;
-          } else {
-            // Draw text
-            str = `SP: ${sp} MO: ${parseFloat(mo.toFixed(3))}`;
-            if (suv) {
-              str += ` SUV: ${parseFloat(suv.toFixed(3))}`;
-            }
-          }
+          str = buildStatsStr(storedPixels, sp, mo, suv, image);
 
           // Coords for text
           const coords = {

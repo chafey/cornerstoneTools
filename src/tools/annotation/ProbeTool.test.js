@@ -55,6 +55,13 @@ describe('ProbeTool.js', () => {
 
       expect(instantiatedTool.name).toEqual(customToolName.name);
     });
+
+    it('can be created with a custom buildStatsStr callback', () => {
+      const customToolName = { configuration: { buildStatsStr: () => 'TEST' } };
+      const instantiatedTool = new ProbeTool(customToolName);
+
+      expect(instantiatedTool.configuration.buildStatsStr()).toEqual('TEST');
+    });
   });
 
   describe('createNewMeasurement', () => {

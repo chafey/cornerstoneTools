@@ -67,6 +67,7 @@ export default class AngleTool extends BaseAnnotationTool {
       active: true,
       color: undefined,
       invalidated: true,
+      text: '',
       handles: {
         start: {
           x: eventData.currentPoints.image.x,
@@ -211,16 +212,8 @@ export default class AngleTool extends BaseAnnotationTool {
         }
 
         // Update textbox stats
-        if (data.invalidated === true) {
-          if (data.rAngle) {
-            this.throttledUpdateCachedStats(image, element, data);
-          } else {
-            this.updateCachedStats(image, element, data);
-          }
-        }
-
         if (data.rAngle) {
-          const text = textBoxText(data, rowPixelSpacing, colPixelSpacing);
+          data.text = textBoxText(data, rowPixelSpacing, colPixelSpacing);
 
           const distance = 15;
 
@@ -233,7 +226,7 @@ export default class AngleTool extends BaseAnnotationTool {
             };
 
             const padding = 5;
-            const textWidth = textBoxWidth(context, text, padding);
+            const textWidth = textBoxWidth(context, data.text, padding);
 
             if (handleMiddleCanvas.x < handleStartCanvas.x) {
               textCoords.x -= distance + textWidth + 10;
@@ -257,7 +250,7 @@ export default class AngleTool extends BaseAnnotationTool {
             context,
             eventData.element,
             data.handles.textBox,
-            text,
+            data.text,
             data.handles,
             textBoxAnchorPoints,
             color,
@@ -265,6 +258,14 @@ export default class AngleTool extends BaseAnnotationTool {
             0,
             true
           );
+        }
+
+        if (data.invalidated === true) {
+          if (data.rAngle) {
+            this.throttledUpdateCachedStats(image, element, data);
+          } else {
+            this.updateCachedStats(image, element, data);
+          }
         }
       });
     }

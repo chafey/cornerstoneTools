@@ -39,8 +39,15 @@ export default function getROITextBoxCoords(viewport, handles) {
  * @returns {Object} - The top, left, bottom, and right handles
  */
 function _determineCorners(handles) {
-  const handlesLeftToRight = [handles.start, handles.end].sort(_compareX);
-  const handlesTopToBottom = [handles.start, handles.end].sort(_compareY);
+  const notTextBoxHandles = [];
+  Object.keys(handles).forEach(handleKey => {
+    const handle = handles[handleKey];
+    if (handleKey !== 'textBox' && handle.hasOwnProperty('x') && handle.hasOwnProperty('y')) {
+      notTextBoxHandles.push(handles[handleKey]);
+    }
+  });
+  const handlesLeftToRight = notTextBoxHandles.sort(_compareX);
+  const handlesTopToBottom = notTextBoxHandles.sort(_compareY);
   const left = handlesLeftToRight[0];
   const right = handlesLeftToRight[handlesLeftToRight.length - 1];
   const top = handlesTopToBottom[0];

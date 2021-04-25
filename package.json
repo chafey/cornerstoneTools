@@ -81,7 +81,7 @@
     "lodash": "^4.17.15",
     "nodemon": "^2.0.2",
     "prettier": "1.18.x",
-    "semantic-release": "^15.13.24",
+    "semantic-release": "^17.2.3",
     "shx": "^0.3.2",
     "terser-webpack-plugin": "^1.4.1",
     "webpack": "^4.35.2",

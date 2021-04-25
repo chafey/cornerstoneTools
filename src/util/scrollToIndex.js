@@ -57,9 +57,10 @@ export default function(element, newImageIdIndex) {
 
     // Check if the element is still enabled in Cornerstone,
     // If an error is thrown, stop here.
+    let enabledElement;
+    
     try {
-      // TODO: Add 'isElementEnabled' to Cornerstone?
-      cornerstone.getEnabledElement(element);
+      enabledElement = cornerstone.getEnabledElement(element);
     } catch (error) {
       return;
     }
@@ -68,6 +69,9 @@ export default function(element, newImageIdIndex) {
       stackRenderer.currentImageIdIndex = newImageIdIndex;
       stackRenderer.render(element, toolData.data);
     } else {
+      if (enabledElement.image === image) {
+        return;
+      }
       cornerstone.displayImage(element, image);
     }
 

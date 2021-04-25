@@ -12,6 +12,9 @@ const defaultConfiguration = {
   maxRadius: 50,
   fillAlpha: 0.2,
   fillAlphaInactive: 0.1,
+  // For keeping the fillAlpha per label map.Key-value pair with key as first image id of stack state and
+  // value as collection of fill alpha arranged with label map index
+  fillAlphaPerLabelMap: {},
   outlineAlpha: 0.7,
   outlineAlphaInactive: 0.35,
   outlineWidth: 3,

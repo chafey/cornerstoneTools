@@ -1,4 +1,5 @@
 import { getModule } from '../store/index.js';
+import { getToolState } from '../stateManagement/toolState';
 import renderSegmentation from './internals/renderSegmentation.js';
 
 const segmentationModule = getModule('segmentation');
@@ -58,11 +59,26 @@ function renderActiveLabelMap(
   activeLabelmapIndex,
   currentImageIdIndex
 ) {
+  const { configuration } = segmentationModule;
+  const eventData = evt.detail;
+  const element = eventData.element;
   const labelmap3D = labelmaps3D[activeLabelmapIndex];
 
   if (!labelmap3D) {
     return;
   }
+
+  const stackState = getToolState(element, 'stack');
+  const stackData = stackState.data[0];
+  const firstImageId = stackData.imageIds[0];
+
+  const fillAlpha = getFillAlphaForLabelMapIndex(
+    activeLabelmapIndex,
+    firstImageId
+  );
+
+  configuration.fillAlpha =
+    fillAlpha >= 0 ? fillAlpha : configuration.fillAlpha;
 
   const labelmap2D = labelmap3D.labelmaps2D[currentImageIdIndex];
 
@@ -86,6 +102,13 @@ function renderInactiveLabelMaps(
   activeLabelmapIndex,
   currentImageIdIndex
 ) {
+  const { configuration } = segmentationModule;
+  const eventData = evt.detail;
+  const element = eventData.element;
+  const stackState = getToolState(element, 'stack');
+  const stackData = stackState.data[0];
+  const firstImageId = stackData.imageIds[0];
+
   for (let i = 0; i < labelmaps3D.length; i++) {
     const labelmap3D = labelmaps3D[i];
 
@@ -93,10 +116,43 @@ function renderInactiveLabelMaps(
       continue;
     }
 
+    const fillAlphaInactive = getFillAlphaForLabelMapIndex(i, firstImageId);
+
+    configuration.fillAlphaInactive =
+      fillAlphaInactive >= 0
+        ? fillAlphaInactive
+        : configuration.fillAlphaInactive;
+
     const labelmap2D = labelmap3D.labelmaps2D[currentImageIdIndex];
 
     if (labelmap2D) {
       renderSegmentation(evt, labelmap3D, i, labelmap2D, false);
     }
   }
+}
+
+/**
+ * GetFillAlphaForLabelMapIndex - Get the fill alpha value corresponding to the segmention label map.
+ *
+ * @param  {number} labelmapIndex The index of the label map.
+ * @param  {HTMLElement|string} firstImageId  The firstImageId of the series
+ *                                            on which the segmentation is stored.
+ * @returns {number}
+ */
+function getFillAlphaForLabelMapIndex(labelmapIndex, firstImageId) {
+  const { configuration } = segmentationModule;
+  let fillAlpha = -1;
+  let fillAlphaArray = [];
+
+  if (
+    configuration.fillAlphaPerLabelMap &&
+    configuration.fillAlphaPerLabelMap[firstImageId]
+  ) {
+    fillAlphaArray = configuration.fillAlphaPerLabelMap[firstImageId];
+  }
+  if (fillAlphaArray.length > labelmapIndex) {
+    fillAlpha = fillAlphaArray[labelmapIndex];
+  }
+
+  return fillAlpha;
 }

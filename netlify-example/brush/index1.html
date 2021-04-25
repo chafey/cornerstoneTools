@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- support for mobile touch devices -->
+  <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1" />
+  <link rel="stylesheet" href="../reset.css" />
+  <link rel="stylesheet" href="../app.css" />
+  <link rel="stylesheet" href="../icon-classes.css" />
+  <link rel="stylesheet" href="../tool-help.css" />
+</head>
+
+<body>
+  <div id="app">
+    <div class="wrapper">
+      <!-- Select Tool Category -->
+      <ul class="tool-category-list">
+        <li><a class="tools" data-category="brush" href="#">Brush</a></li>
+        <li>
+          <a class="tools" data-category="scissors" href="#">Scissors</a>
+        </li>
+        <li>
+          <a class="tools" data-category="stack" href="#">Stack</a>
+        </li>
+      </ul>
+
+      <!-- Select Active Tool -->
+      <ul class="tool-category active" data-tool-category="brush">
+        <li><a href="#" data-tool="Brush">Brush</a></li>
+        <li><a href="#" data-tool="SphericalBrush">SphericalBrush</a></li>
+      </ul>
+
+      <ul class="tool-category" data-tool-category="scissors">
+        <li>
+          <a href="#" data-tool="FreehandScissors">FreehandScissors</a>
+        </li>
+        <li>
+          <a href="#" data-tool="RectangleScissors">RectangleScissors</a>
+        </li>
+        <li>
+          <a href="#" data-tool="CircleScissors">CircleScissors</a>
+        </li>
+        <li>
+          <a href="#" data-tool="CorrectionScissors">CorrectionScissors</a>
+        </li>
+        <li>
+          <select id="change-scissor-strategy" onchange="changeScissorStrategy(this.value)">
+            <option value="fillInside">Fill Inside</option>
+            <option value="fillOutside">Fill Outside</option>
+            <option value="eraseInside">Erase Inside</option>
+            <option value="eraseOutside">Erase Outside</option>
+          </select>
+        </li>
+      </ul>
+
+      <ul class="tool-category" data-tool-category="stack">
+        <li><a href="#" data-tool="StackScroll">StackScroll</a></li>
+        <li><a href="#" data-tool="Pan">Pan</a></li>
+        <li><a href="#" data-tool="Zoom">Zoom</a></li>
+        <li><a href="#" data-tool="Rotate">Rotate</a></li>
+      </ul>
+
+      <!-- Our beautiful element targets -->
+      <div class="cornerstone-element-wrapper-help">
+        <div class="cornerstone-element-help" data-index="0" oncontextmenu="return false"></div>
+        <div class="tool-help">
+          <h2>Renderers</h2>
+          <table>
+            <tr>
+              <td>Segmentation Outline</td>
+              <td>
+                <input id="display-outline" type="checkbox" name="display-outline" checked />
+              </td>
+            </tr>
+            <tr>
+              <td>Segmentation Fill</td>
+              <td>
+                <input id="display-fill" type="checkbox" name="display-fill" checked />
+              </td>
+            </tr>
+            <tr>
+              <td>Inactive Labelmaps</td>
+              <td>
+                <input id="display-inactive" type="checkbox" name="display-inactive" checked />
+              </td>
+            </tr>
+          </table>
+
+          <h2>Active Segmentation</h2>
+          <table>
+            <tr>
+              <th>
+                <button type="button" api-call="next-segment">
+                  Next Segment
+                </button>
+              </th>
+              <td>
+                Switch to the next segment index.
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <button type="button" api-call="previous-segment">
+                  Previous Segment
+                </button>
+              </th>
+              <td>
+                Switch to the previous segment index.
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <button type="button" api-call="switch-labelmap">
+                  Switch Labelmap
+                </button>
+              </th>
+              <td id="active-label-map-label">
+                Active labelmap: 0
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <button type="button" api-call="toggle-segment-1">
+                  Toggle Segment 1 visibility
+                </button>
+              </th>
+              <td id="toggle-segment-1-label">
+                visible
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <button type="button" api-call="calculate-segment-1-stats">
+                  Calculate Segment 1 stats.
+                </button>
+              </th>
+              <td id="calculate-segment-1-stats-label">
+
+              </td>
+            </tr>
+          </table>
+
+		  <h2>
+            Fill Alpha for All Labelmap for each series
+          </h2>
+		  <h3>
+			Draw a segment with brush in each label map 0, 1 and 2 by activating it(Switch Labelmap)
+			Then control the Fill Alpha of each segment with below sliders
+
+		  </h3>
+		  <table>
+            <tr>
+              <td>
+                <input type="range" id="fill-alpha-label-map-0" min="0" max="255" />
+              </td>
+              <td>
+                fillAlpha of label map 0 of series 1.
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input type="range" id="fill-alpha-label-map-1" min="0" max="255" />
+              </td>
+              <td>
+                fillAlpha of label map 1 of series 1.
+              </td>
+            </tr>
+			<tr>
+              <td>
+                <input type="range" id="fill-alpha-label-map-2" min="0" max="255" />
+              </td>
+              <td>
+                fillAlpha of label map 2 of series 1.
+              </td>
+            </tr>
+          </table>
+
+          <h2>Active Labelmap</h2>
+          <table>
+            <tr>
+              <td>
+                <input type="range" id="outline-alpha" min="0" max="255" />
+              </td>
+              <td>
+                outlineAlpha - Opacity of the active segmentation outline.
+              </td>
+            </tr>
+          </table>
+
+          <h2>
+            Inactive Labelmap
+          </h2>
+
+          <table>
+            <tr>
+              <td>
+                <input type="range" id="outline-alpha-inactive" min="0" max="255" />
+              </td>
+              <td>
+                outlineAlphaInactive - Opacity of inactive segmentation
+                outlines.
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<!-- include the hammer.js library for touch gestures-->
+<script src="https://unpkg.com/hammerjs@2.0.8/hammer.js"></script>
+<!-- include Mousetrap to demo keyboard functionality -->
+<script src="https://unpkg.com/mousetrap@1.6.2/mousetrap.js"></script>
+
+<!-- include the cornerstone library -->
+<script src="https://unpkg.com/cornerstone-core@2.2.6/dist/cornerstone.js"></script>
+<script src="https://unpkg.com/cornerstone-math@0.1.6/dist/cornerstoneMath.js"></script>
+<script src="https://unpkg.com/cornerstone-wado-image-loader@3.0.0/dist/cornerstoneWADOImageLoader.js"></script>
+<script src="https://unpkg.com/dicom-parser@1.8.3/dist/dicomParser.js"></script>
+<script src="../../dist/cornerstoneTools.js"></script>
+<script>
+  window.cornerstoneTools ||
+    document.write(
+      '<script src="https://unpkg.com/cornerstone-tools">\x3C/script>'
+    );
+</script>
+
+<!-- include special code for these examples which provides images -->
+<script src="../imageLoader.js"></script>
+<script src="../metaDataProvider.js"></script>
+
+<script>
+  cornerstoneTools.init({ showSVGCursors: true });
+
+  cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+
+  // THE DUCK - Still suffers on Outline, would require optimisation of the renderOutline function.
+  /*
+  const baseUrl = window.location.origin;
+  const imageId = `dicomweb:${baseUrl}/examples/assets/dicom/exotic/1.dcm`;
+  const imageIds = [imageId];
+  */
+
+  /*
+  const imageIds = [
+    'dicomweb://s3.amazonaws.com/lury/PTCTStudy/1.3.6.1.4.1.25403.52237031786.3872.20100510032220.11.dcm',
+    'dicomweb://s3.amazonaws.com/lury/PTCTStudy/1.3.6.1.4.1.25403.52237031786.3872.20100510032220.12.dcm',
+  ];
+  */
+
+  const imageIds = [
+    'example://1',
+    'example://2'
+  ];
+
+  const stack = {
+    currentImageIdIndex: 0,
+    imageIds: imageIds,
+  };
+
+  // Enable & Setup all of our elements
+  const element = document.querySelector('.cornerstone-element-help');
+
+  cornerstone.enable(element);
+
+  const enabledElement = cornerstone.getEnabledElement(element);
+
+  element.tabIndex = 0;
+  element.focus();
+
+  cornerstone.loadImage(imageIds[0]).then(function (image) {
+    cornerstoneTools.addStackStateManager(element, ['stack']);
+    cornerstoneTools.addToolState(element, 'stack', stack);
+    cornerstone.displayImage(element, image);
+
+    enabledElement.viewport.pixelReplication = true;
+  });
+
+  function setAllToolsPassive() {
+    cornerstoneTools.store.state.tools.forEach(tool => {
+      cornerstoneTools.setToolPassive(tool.name);
+    });
+  }
+
+  // Iterate over all tool-category links
+  const toolCategoryLinks = document.querySelectorAll(
+    'ul.tool-category-list a'
+  );
+  const toolCategorySections = document.querySelectorAll('ul.tool-category');
+  Array.from(toolCategoryLinks).forEach(link => {
+    //
+    const categoryName = link.getAttribute('data-category');
+    const categoryElement = document.querySelector(
+      `section[data-tool-category="${categoryName}"]`
+    );
+
+    // Setup listener
+    link.addEventListener('click', evt => {
+      evt.preventDefault();
+      setToolCategoryActive(categoryName);
+    });
+  });
+
+  // API calls
+  const apiButtons = document.querySelectorAll('button[api-call]');
+  Array.from(apiButtons).forEach(apiBtn => {
+    const apiCall = apiBtn.getAttribute('api-call');
+
+    apiBtn.addEventListener('mousedown', evt => {
+      brushApiCall(apiCall);
+    });
+  });
+
+  // Iterate over all tool buttons
+  const toolButtons = document.querySelectorAll('a[data-tool]');
+  Array.from(toolButtons).forEach(toolBtn => {
+    // Add the tool
+    const toolName = toolBtn.getAttribute('data-tool');
+    const apiTool = cornerstoneTools[`${toolName}Tool`];
+
+    if (apiTool) {
+      cornerstoneTools.addTool(apiTool);
+    } else {
+      console.warn(`unable to add tool with name ${toolName}Tool`);
+      console.log(cornerstoneTools);
+    }
+
+    // Setup button listener
+    // Prevent right click context menu for our menu buttons
+    toolBtn.addEventListener(
+      'contextmenu',
+      event => event.preventDefault(),
+      true
+    );
+    // Prevent middle click opening a new tab on Chrome & FF
+    toolBtn.addEventListener(
+      'auxclick',
+      event => {
+        if (event.button && event.button === 1) {
+          event.preventDefault();
+        }
+      },
+      false
+    );
+    toolBtn.addEventListener('mousedown', evt => {
+      const mouseButtonMask = evt.buttons
+        ? evt.buttons
+        : convertMouseEventWhichToButtons(evt.which);
+      // TODO: Let's make this happen automagically for mask/touch conflicts?
+      setAllToolsPassive();
+      const toolInteraction = evt.target.getAttribute('data-tool-interaction');
+      setButtonActive(toolName, mouseButtonMask, toolInteraction);
+      cornerstoneTools.setToolActive(toolName, { mouseButtonMask });
+
+      evt.preventDefault();
+      evt.stopPropagation();
+      evt.stopImmediatePropagation();
+      return false;
+    });
+  });
+
+  // Activate first tool
+  cornerstoneTools.setToolActive(cornerstoneTools.store.state.tools[0].name, {
+    mouseButtonMask: 1,
+  });
+
+  const setToolCategoryActive = categoryName => {
+    Array.from(toolCategoryLinks).forEach(toolLink => {
+      if (categoryName === toolLink.getAttribute('data-category')) {
+        toolLink.classList.remove('active');
+        toolLink.classList.add('active');
+      } else {
+        toolLink.classList.remove('active');
+      }
+    });
+
+    Array.from(toolCategorySections).forEach(toolCategorySection => {
+      if (
+        categoryName ===
+        toolCategorySection.getAttribute('data-tool-category')
+      ) {
+        toolCategorySection.classList.remove('active');
+        toolCategorySection.classList.add('active');
+      } else {
+        toolCategorySection.classList.remove('active');
+      }
+    });
+  };
+
+  const setButtonActive = (toolName, mouseButtonMask, toolInteraction) => {
+    Array.from(toolButtons).forEach(toolBtn => {
+      // Classes we need to set & remove
+      let mouseButtonIcon = `mousebutton-${mouseButtonMask}`;
+      let touchIcon = `touch-1`;
+
+      // Update classes depending on the toolInteraction we clicked
+      if (toolInteraction === 'none') {
+        return;
+      } else if (toolInteraction === 'multitouch') {
+        mouseButtonIcon = null;
+        touchIcon = 'touch-2';
+      } else if (toolInteraction === 'pinch') {
+        mouseButtonIcon = null;
+        touchIcon = 'touch-pinch';
+      } else if (toolInteraction === 'wheel') {
+        mouseButtonIcon = 'mousebutton-wheel';
+        touchIcon = null;
+      }
+
+      // Update our target button
+      if (toolName === toolBtn.getAttribute('data-tool')) {
+        toolBtn.className = '';
+        toolBtn.classList.add('active');
+        if (mouseButtonIcon) {
+          toolBtn.classList.add(mouseButtonIcon);
+        }
+        if (touchIcon) {
+          toolBtn.classList.add(touchIcon);
+        }
+        // Remove relevant classes from other buttons
+      } else {
+        if (mouseButtonIcon && toolBtn.classList.contains(mouseButtonIcon)) {
+          toolBtn.classList.remove(mouseButtonIcon);
+        }
+        if (touchIcon && toolBtn.classList.contains(touchIcon)) {
+          toolBtn.classList.remove(touchIcon);
+        }
+        if (
+          toolBtn.classList.length === 1 &&
+          toolBtn.classList[0] === 'active'
+        ) {
+          toolBtn.classList.remove('active');
+        }
+      }
+    });
+  };
+
+  const convertMouseEventWhichToButtons = which => {
+    switch (which) {
+      // no button
+      case 0:
+        return 0;
+      // left
+      case 1:
+        return 1;
+      // middle
+      case 2:
+        return 4;
+      // right
+      case 3:
+        return 2;
+    }
+    return 0;
+  };
+
+  // Segmentation Module API //
+
+  const segmentationModule = cornerstoneTools.getModule(
+    'segmentation'
+  );
+
+  let activeLabelmapIndex = 0;
+
+  function brushApiCall(opperation) {
+    switch (opperation) {
+      case 'next-segment':
+        segmentationModule.setters.incrementActiveSegmentIndex(element);
+        cornerstone.updateImage(element);
+        break;
+      case 'previous-segment':
+        segmentationModule.setters.decrementActiveSegmentIndex(element);
+        cornerstone.updateImage(element);
+        break;
+      case 'switch-labelmap':
+        if (activeLabelmapIndex === 0) {
+          activeLabelmapIndex = 1;
+        } else if (activeLabelmapIndex === 1) {
+          activeLabelmapIndex = 2;
+        } else {
+          activeLabelmapIndex = 0;
+		}
+
+        segmentationModule.setters.activeLabelmapIndex(element, activeLabelmapIndex);
+
+        const label = document.getElementById('active-label-map-label');
+        label.innerHTML = 'Active Labelmap: ' + activeLabelmapIndex;
+
+        cornerstone.updateImage(element);
+
+        break;
+
+      case 'toggle-segment-1':
+        const visible = segmentationModule.setters.toggleSegmentVisibility(element, 1);
+
+        console.log(visible);
+
+        const visibilityLabel = document.getElementById(
+          'toggle-segment-1-label'
+        );
+        visibilityLabel.innerHTML = visible ? 'visible' : 'hidden';
+
+        cornerstone.updateImage(element);
+        break;
+      case 'calculate-segment-1-stats':
+        segmentationModule.getters.labelmapStats(element, 1).then(result => {
+          const statsLabel = document.getElementById(
+            'calculate-segment-1-stats-label'
+          );
+
+          if (result) {
+            statsLabel.innerHTML = `vol: ${
+              Math.round(result.volume)
+              } mm, mean: ${
+              Math.round(result.mean)
+              }, stdDev: ${
+              Math.round(result.stdDev)
+              }, min: ${
+              Math.round(result.min)
+              }, max: ${
+              Math.round(result.max)
+              }`;
+
+          } else {
+            statsLabel.innerHTML = 'No segment.'
+          }
+
+        })
+        break;
+      default:
+        return;
+    }
+  }
+
+  // Display Outline
+  const outlineDisplay = document.getElementById('display-outline');
+
+  outlineDisplay.addEventListener('input', event => {
+    segmentationModule.configuration.renderOutline = event.target.checked;
+    cornerstone.updateImage(element);
+  });
+
+  // Display Fill
+  const fillDisplay = document.getElementById('display-fill');
+
+  fillDisplay.addEventListener('input', event => {
+    segmentationModule.configuration.renderFill = event.target.checked;
+    cornerstone.updateImage(element);
+  });
+
+  // Display Inactive
+  const inactiveDisplay = document.getElementById('display-inactive');
+
+  inactiveDisplay.addEventListener('input', event => {
+    segmentationModule.configuration.shouldRenderInactiveLabelmaps = event.target.checked;
+    cornerstone.updateImage(element);
+  });
+
+  // API Sliders
+  // Active Fill
+  const fillAlphaLabelMap0Slider = document.getElementById('fill-alpha-label-map-0');
+
+  fillAlphaLabelMap0Slider.defaultValue = Math.floor(
+    segmentationModule.configuration.fillAlpha * 255
+  );
+  fillAlphaLabelMap0Slider.addEventListener('input', event => {
+    const normalisedAlpha = event.target.value / 255.0;
+    if(!segmentationModule.configuration.fillAlphaPerLabelMap[imageIds[0]]) {
+		  segmentationModule.configuration.fillAlphaPerLabelMap[imageIds[0]] = [normalisedAlpha];
+	  }
+    segmentationModule.configuration.fillAlphaPerLabelMap[imageIds[0]][0] = normalisedAlpha;
+	  cornerstone.updateImage(element);
+  });
+
+  // Inactive Fill
+  const fillAlphaLabelMap1Slider = document.getElementById('fill-alpha-label-map-1');
+
+  fillAlphaLabelMap1Slider.defaultValue = Math.floor(
+    segmentationModule.configuration.fillAlphaInactive * 255
+  );
+  fillAlphaLabelMap1Slider.addEventListener('input', event => {
+    const normalisedAlpha = event.target.value / 255.0;
+    if(!segmentationModule.configuration.fillAlphaPerLabelMap[imageIds[0]]) {
+		  segmentationModule.configuration.fillAlphaPerLabelMap[imageIds[0]] = [normalisedAlpha];
+	  }
+	  segmentationModule.configuration.fillAlphaPerLabelMap[imageIds[0]][1] = normalisedAlpha;
+	  cornerstone.updateImage(element);
+  });
+
+  const fillAlphaLabelMap2Slider = document.getElementById('fill-alpha-label-map-2');
+
+  fillAlphaLabelMap2Slider.defaultValue = Math.floor(
+    segmentationModule.configuration.fillAlphaInactive * 255
+  );
+  fillAlphaLabelMap2Slider.addEventListener('input', event => {
+    const normalisedAlpha = event.target.value / 255.0;
+    if(!segmentationModule.configuration.fillAlphaPerLabelMap[imageIds[0]]) {
+		  segmentationModule.configuration.fillAlphaPerLabelMap[imageIds[0]] = [normalisedAlpha];
+	  }
+	  segmentationModule.configuration.fillAlphaPerLabelMap[imageIds[0]][2] = normalisedAlpha;
+	  cornerstone.updateImage(element);
+  });
+
+  // Active Outline
+  const outlineAlphaSlider = document.getElementById('outline-alpha');
+
+  outlineAlphaSlider.defaultValue = Math.floor(
+    segmentationModule.configuration.outlineAlpha * 255
+  );
+  outlineAlphaSlider.addEventListener('input', event => {
+    const normalisedAlpha = event.target.value / 255.0;
+
+    segmentationModule.configuration.outlineAlpha = normalisedAlpha;
+    cornerstone.updateImage(element);
+  });
+
+  // Inactive Outline
+  const inactiveOutlineAlphaSlider = document.getElementById(
+    'outline-alpha-inactive'
+  );
+
+  inactiveOutlineAlphaSlider.defaultValue = Math.floor(
+    segmentationModule.configuration.outlineAlphaInactive * 255
+  );
+  inactiveOutlineAlphaSlider.addEventListener('input', event => {
+    const normalisedAlpha = event.target.value / 255.0;
+
+    segmentationModule.configuration.outlineAlphaInactive = normalisedAlpha;
+    cornerstone.updateImage(element);
+  });
+
+  // Segmentation Tool API
+  const freehandScissorsTool = cornerstoneTools.getToolForElement(
+    element,
+    'FreehandScissors'
+  );
+  const rectangleScissorsTool = cornerstoneTools.getToolForElement(
+    element,
+    'RectangleScissors'
+  );
+  const circleScissorsTool = cornerstoneTools.getToolForElement(
+    element,
+    'CircleScissors'
+  );
+
+  const changeScissorStrategyElement = document.getElementById(
+    'change-scissor-strategy'
+  );
+
+  changeScissorStrategyElement.value = 'fillInside';
+
+  function changeScissorStrategy(value) {
+    console.log(value);
+    switch (value) {
+      case 'fillInside':
+        freehandScissorsTool.setActiveStrategy('FILL_INSIDE');
+        rectangleScissorsTool.setActiveStrategy('FILL_INSIDE');
+        circleScissorsTool.setActiveStrategy('FILL_INSIDE');
+        break;
+      case 'eraseInside':
+        freehandScissorsTool.setActiveStrategy('ERASE_INSIDE');
+        rectangleScissorsTool.setActiveStrategy('ERASE_INSIDE');
+        circleScissorsTool.setActiveStrategy('ERASE_INSIDE');
+        break;
+      case 'fillOutside':
+        freehandScissorsTool.setActiveStrategy('FILL_OUTSIDE');
+        rectangleScissorsTool.setActiveStrategy('FILL_OUTSIDE');
+        circleScissorsTool.setActiveStrategy('FILL_OUTSIDE');
+        break;
+      case 'eraseOutside':
+        freehandScissorsTool.setActiveStrategy('ERASE_OUTSIDE');
+        rectangleScissorsTool.setActiveStrategy('ERASE_OUTSIDE');
+        circleScissorsTool.setActiveStrategy('ERASE_OUTSIDE');
+        break;
+    }
+  }
+
+  Mousetrap.bind(['command+z', 'ctrl+z'], function () {
+    console.log('UNDO');
+    segmentationModule.setters.undo(element)
+  });
+  Mousetrap.bind(['command+y', 'ctrl+y'], function () {
+    console.log('REDO');
+    segmentationModule.setters.redo(element)
+  });
+</script>
+
+</html>

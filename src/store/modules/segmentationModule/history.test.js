@@ -13,6 +13,7 @@ jest.mock('./getLabelmaps3D', () => ({
 jest.mock('../../../externalModules.js', () => ({
   cornerstone: {
     updateImage: jest.fn(),
+    triggerEvent: jest.fn(),
   },
 }));
 

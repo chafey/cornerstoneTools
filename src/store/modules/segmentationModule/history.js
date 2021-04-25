@@ -1,5 +1,8 @@
 import { getLabelmap3D } from './getLabelmaps3D';
 import { getLogger } from '../../../util/logger';
+import { triggerLabelmapModifiedEvent } from '../../../util/segmentation';
+import { getActiveLabelmapIndex } from './activeLabelmapIndex';
+import getSegmentsOnPixelData from './getSegmentsOnPixeldata';
 import external from '../../../externalModules';
 
 const logger = getLogger('util:segmentation:labelmap3DHistory');
@@ -12,7 +15,10 @@ function pushState(element, operations, labelmapIndex) {
 }
 
 function undo(element, labelmapIndex) {
-  const labelmap3D = getLabelmap3D(element, labelmapIndex);
+  const activeLabelmapIndex = labelmapIndex
+    ? labelmapIndex
+    : getActiveLabelmapIndex(element);
+  const labelmap3D = getLabelmap3D(element, activeLabelmapIndex);
   const { undo, redo } = labelmap3D;
 
   if (!undo.length) {
@@ -30,11 +36,15 @@ function undo(element, labelmapIndex) {
   // Push set of operations to redo.
   redo.push(operations);
 
+  triggerLabelmapModifiedEvent(element, activeLabelmapIndex);
   external.cornerstone.updateImage(element);
 }
 
 function redo(element, labelmapIndex) {
-  const labelmap3D = getLabelmap3D(element, labelmapIndex);
+  const activeLabelmapIndex = labelmapIndex
+    ? labelmapIndex
+    : getActiveLabelmapIndex(element);
+  const labelmap3D = getLabelmap3D(element, activeLabelmapIndex);
   const { undo, redo } = labelmap3D;
 
   if (!redo.length) {
@@ -52,6 +62,7 @@ function redo(element, labelmapIndex) {
   // Push set of operations to undo.
   undo.push(operations);
 
+  triggerLabelmapModifiedEvent(element, activeLabelmapIndex);
   external.cornerstone.updateImage(element);
 }
 
@@ -70,5 +81,7 @@ function applyState(labelmap3D, operations, replaceIndex) {
 
       pixelData[diffI[0]] = diffI[replaceIndex];
     }
+
+    labelmap2D.segmentsOnLabelmap = getSegmentsOnPixelData(pixelData);
   });
 }

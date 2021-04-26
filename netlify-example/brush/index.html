@@ -539,7 +539,7 @@
   // Active Fill
   const alphaSlider = document.getElementById('fill-alpha');
 
-  alphaSlider.defaultValue = Math.floor(configuration.fillAlpha * 255);
+  alphaSlider.defaultValue = Math.floor(segmentationModule.configuration.fillAlpha * 255);
   alphaSlider.addEventListener('input', event => {
     const normalisedAlpha = event.target.value / 255.0;
 

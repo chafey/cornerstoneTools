@@ -13,6 +13,15 @@ const mockEvt = {
   },
 };
 
+const forMobileMockEvt = {
+  detail: {
+    viewport: {
+      rotation: 50,
+      initialRotation: undefined,
+    },
+  },
+};
+
 describe('RotateTool.js', () => {
   describe('default values', () => {
     it('has a default name of "Rotate"', () => {
@@ -46,6 +55,16 @@ describe('RotateTool.js', () => {
       external.cornerstone.setViewport = jest.fn();
 
       instantiatedTool.dragCallback(mockEvt);
+      expect(external.cornerstone.setViewport).toHaveBeenCalled();
+    });
+
+    it('can be created on mobile device', () => {
+      const instantiatedTool = new RotateTool();
+
+      instantiatedTool.applyActiveStrategy = jest.fn();
+      external.cornerstone.setViewport = jest.fn();
+
+      instantiatedTool.dragCallback(forMobileMockEvt);
       expect(external.cornerstone.setViewport).toHaveBeenCalled();
     });
   });

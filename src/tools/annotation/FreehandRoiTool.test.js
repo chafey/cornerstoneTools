@@ -19,6 +19,24 @@ jest.mock('./../../importInternal.js', () => ({
   default: jest.fn(),
 }));
 
+jest.mock('./../../externalModules.js', () => ({
+  cornerstone: {
+    metaData: {
+      get: type => {
+        if (type === 'imagePlaneModule') {
+          return {
+            rowPixelSpacing: 2,
+            columnPixelSpacing: 2,
+          };
+        }
+
+        return {};
+      },
+    },
+    getPixels: () => [100, 100, 100, 100, 4, 5, 100, 3, 6],
+  },
+}));
+
 const badMouseEventData = 'hello world';
 const goodMouseEventData = {
   currentPoints: {
@@ -68,6 +86,16 @@ describe('FreehandRoiTool.js', function() {
       );
 
       expect(typeof toolMeasurement).toBe(typeof {});
+    });
+
+    it('returns a measurement with a textBox handle', () => {
+      const instantiatedTool = new FreehandRoiTool();
+
+      const toolMeasurement = instantiatedTool.createNewMeasurement(
+        goodMouseEventData
+      );
+
+      expect(typeof toolMeasurement.handles.textBox).toBe(typeof {});
     });
   });
 });
@@ -387,5 +415,44 @@ describe('calculateFreehandStatistics.js', function() {
     expect(statisticsObj.mean).toBeCloseTo(2.0, 5);
     expect(statisticsObj.variance).toBeCloseTo(2.0, 5);
     expect(statisticsObj.stdDev).toBeCloseTo(Math.sqrt(2.0), 5);
+  });
+});
+
+describe('updateCachedStats', () => {
+  let element;
+
+  beforeEach(() => {
+    element = jest.fn();
+  });
+
+  it('should calculate and update annotation value using the metaData provider pixel spacing', () => {
+    const instantiatedTool = new FreehandRoiTool();
+
+    const data = {
+      handles: {
+        points: [
+          {
+            x: 0.0,
+            y: 0.0,
+          },
+          {
+            x: 0.0,
+            y: 1.0,
+          },
+          {
+            x: 1.0,
+            y: 1.0,
+          },
+        ],
+      },
+    };
+
+    const image = {
+      rowPixelSpacing: 0.8984375,
+      columnPixelSpacing: 0.8984375,
+    };
+
+    instantiatedTool.updateCachedStats(image, element, data);
+    expect(data.area).toBe(2);
   });
 });

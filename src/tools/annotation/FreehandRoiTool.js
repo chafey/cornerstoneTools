@@ -17,6 +17,7 @@ import { moveHandleNearImagePoint } from '../../util/findAndMoveHelpers.js';
 import pointInsideBoundingBox from '../../util/pointInsideBoundingBox.js';
 import calculateSUV from '../../util/calculateSUV.js';
 import numbersWithCommas from '../../util/numbersWithCommas.js';
+import getPixelSpacing from '../../util/getPixelSpacing';
 
 // Drawing
 import { getNewContext, draw, drawJoinedLines } from '../../drawing/index.js';
@@ -319,9 +320,8 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
 
     // Retrieve the pixel spacing values, and if they are not
     // Real non-zero values, set them to 1
-    const columnPixelSpacing = image.columnPixelSpacing || 1;
-    const rowPixelSpacing = image.rowPixelSpacing || 1;
-    const scaling = columnPixelSpacing * rowPixelSpacing;
+    const { colPixelSpacing, rowPixelSpacing } = getPixelSpacing(image);
+    const scaling = (colPixelSpacing || 1) * (rowPixelSpacing || 1);
 
     const area = freehandArea(data.handles.points, scaling);
 
@@ -549,7 +549,9 @@ export default class FreehandRoiTool extends BaseAnnotationTool {
         // This uses Char code 178 for a superscript 2
         let suffix = ` mm${String.fromCharCode(178)}`;
 
-        if (!image.rowPixelSpacing || !image.columnPixelSpacing) {
+        const { rowPixelSpacing, colPixelSpacing } = getPixelSpacing(image);
+
+        if (!rowPixelSpacing || !colPixelSpacing) {
           suffix = ` pixels${String.fromCharCode(178)}`;
         }
 

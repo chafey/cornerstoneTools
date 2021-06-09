@@ -1,6 +1,7 @@
 import EVENTS from '../events.js';
 import external from '../externalModules.js';
 import anyHandlesOutsideImage from './anyHandlesOutsideImage.js';
+import getHandlePixelPosition from './getHandlePixelPosition.js';
 import { removeToolState } from '../stateManagement/toolState.js';
 import triggerEvent from '../util/triggerEvent.js';
 import { clipToBox } from '../util/clip.js';
@@ -149,17 +150,10 @@ function _moveHandler(
   interactionType,
   evt
 ) {
-  const { currentPoints, image, element, buttons } = evt.detail;
+  const { image, element, buttons } = evt.detail;
+  const targetLocation = getHandlePixelPosition(evt.detail, interactionType);
 
   options.hasMoved = true;
-
-  const page = currentPoints.page;
-  const fingerOffset = -57;
-  const targetLocation = external.cornerstone.pageToPixel(
-    element,
-    interactionType === 'touch' ? page.x + fingerOffset : page.x,
-    interactionType === 'touch' ? page.y + fingerOffset : page.y
-  );
 
   annotation.invalidated = true;
   handle.active = true;
@@ -235,20 +229,14 @@ function _moveEndHandler(
   doneMovingCallback
 ) {
   const eventData = evt.detail;
-  const { element, currentPoints } = eventData;
+  const { element } = eventData;
   let moveNewHandleSuccessful = true;
 
   if (options.hasMoved === false) {
     return;
   }
 
-  const page = currentPoints.page;
-  const fingerOffset = -57;
-  const targetLocation = external.cornerstone.pageToPixel(
-    element,
-    interactionType === 'touch' ? page.x + fingerOffset : page.x,
-    interactionType === 'touch' ? page.y + fingerOffset : page.y
-  );
+  const targetLocation = getHandlePixelPosition(eventData, interactionType);
 
   // "Release" the handle
   annotation.active = false;

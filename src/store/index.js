@@ -24,9 +24,11 @@ export const state = {
   handleRadius: 6,
   deleteIfHandleOutsideImage: true,
   preventHandleOutsideImage: false,
+  // Average pixel width of index finger is 45-57 pixels
+  // https://www.smashingmagazine.com/2012/02/finger-friendly-design-ideal-mobile-touchscreen-target-sizes/
+  handleTouchOffset: { x: 0, y: -57 },
   // Cursor
   svgCursorUrl: null,
-  //
 };
 
 export const getters = {

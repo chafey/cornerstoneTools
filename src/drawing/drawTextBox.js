@@ -42,9 +42,11 @@ export function textBoxWidth(context, text, padding) {
  * @param  {number} y           The y position of the textBox.
  * @param  {string} color       The color of the textBox.
  * @param  {Object} options     Options for the textBox.
+ * @param  {boolean} options.centering Option to center the textbox.
+ * @param  {function} options.translator Translator function.
  * @returns {Object} {top, left, width, height} - Bounding box; can be used for pointNearTool
  */
-export default function(context, textLines, x, y, color, options) {
+export default function(context, textLines, x, y, color, options = {}) {
   if (Object.prototype.toString.call(textLines) !== '[object Array]') {
     textLines = [textLines];
   }
@@ -74,21 +76,25 @@ export default function(context, textLines, x, y, color, options) {
     context.strokeStyle = color;
 
     // Draw the background box with padding
-    if (options && options.centering && options.centering.x === true) {
-      x -= boundingBox.width / 2;
-    }
+    if (options.centering) {
+      if (options.centering.x === true) {
+        x -= boundingBox.width / 2;
+      }
 
-    if (options && options.centering && options.centering.y === true) {
-      y -= boundingBox.height / 2;
+      if (options.centering.y === true) {
+        y -= boundingBox.height / 2;
+      }
     }
 
     boundingBox.left = x;
     boundingBox.top = y;
 
-    const fillStyle =
-      options && options.debug === true ? '#FF0000' : backgroundColor;
+    // Check if a translator function was provided
+    if (typeof options.translator === 'function') {
+      options.translator(boundingBox);
+    }
 
-    fillBox(context, boundingBox, fillStyle);
+    fillBox(context, boundingBox, backgroundColor);
 
     // Draw each of the text lines on top of the background box
     fillTextLines(context, boundingBox, textLines, color, padding);

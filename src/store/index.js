@@ -24,6 +24,7 @@ export const state = {
   handleRadius: 6,
   deleteIfHandleOutsideImage: true,
   preventHandleOutsideImage: false,
+  preventTextBoxOutsideDisplayedArea: false,
   // Cursor
   svgCursorUrl: null,
   //

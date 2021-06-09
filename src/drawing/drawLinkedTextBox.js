@@ -1,6 +1,8 @@
 import external from '../externalModules.js';
 import drawTextBox from './drawTextBox.js';
 import drawLink from './drawLink.js';
+import { state } from './../store/index.js';
+import { clipBoxToDisplayedArea } from '../util/clip.js';
 
 /**
  * Draw a link between an annotation to a textBox.
@@ -32,10 +34,10 @@ export default function(
   xOffset,
   yCenter
 ) {
-  const cornerstone = external.cornerstone;
+  const { pixelToCanvas } = external.cornerstone;
 
   // Convert the textbox Image coordinates into Canvas coordinates
-  const textCoords = cornerstone.pixelToCanvas(element, textBox);
+  const textCoords = pixelToCanvas(element, textBox);
 
   if (xOffset) {
     textCoords.x += xOffset;
@@ -47,6 +49,11 @@ export default function(
       y: yCenter,
     },
   };
+
+  // Clip the bounding box to the displayed area of the image
+  if (state.preventTextBoxOutsideDisplayedArea) {
+    options.translator = box => clipBoxToDisplayedArea(element, box);
+  }
 
   // Draw the text box
   textBox.boundingBox = drawTextBox(
@@ -60,7 +67,7 @@ export default function(
   if (textBox.hasMoved) {
     // Identify the possible anchor points for the tool -> text line
     const linkAnchorPoints = textBoxAnchorPoints(handles).map(h =>
-      cornerstone.pixelToCanvas(element, h)
+      pixelToCanvas(element, h)
     );
 
     // Draw dashed link line between tool and text

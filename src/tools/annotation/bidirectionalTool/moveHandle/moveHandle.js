@@ -4,6 +4,7 @@ import EVENTS from './../../../../events.js';
 import setHandlesPosition from './setHandlesPosition.js';
 import getActiveTool from '../../../../util/getActiveTool';
 import BaseAnnotationTool from '../../../base/BaseAnnotationTool';
+import { clipHandle } from '../../../../manipulators/index.js';
 
 export default function(
   mouseEventData,
@@ -31,13 +32,7 @@ export default function(
       setHandlesPosition(handle, eventData, data, distanceFromTool);
     }
 
-    if (preventHandleOutsideImage) {
-      handle.x = Math.max(handle.x, 0);
-      handle.x = Math.min(handle.x, eventData.image.width);
-
-      handle.y = Math.max(handle.y, 0);
-      handle.y = Math.min(handle.y, eventData.image.height);
-    }
+    clipHandle(eventData, handle, { preventHandleOutsideImage });
 
     data.invalidated = true;
 

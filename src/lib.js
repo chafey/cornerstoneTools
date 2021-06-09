@@ -4,6 +4,10 @@ import BaseBrushTool from './tools/base/BaseBrushTool.js';
 
 import {
   anyHandlesOutsideImage,
+  anyHandlesOutsideDisplayedArea,
+  clipHandle,
+  deleteIfHandleOutsideLimits,
+  getHandleMovingOptions,
   getHandleNearImagePoint,
   handleActivator,
   moveHandle,
@@ -98,7 +102,11 @@ export const lib = {
   'tools/cursors/MouseCursor': MouseCursor,
   'tools/cursors': cursors,
 
+  'manipulators/anyHandlesOutsideDisplayedArea': anyHandlesOutsideDisplayedArea,
   'manipulators/anyHandlesOutsideImage': anyHandlesOutsideImage,
+  'manipulators/clipHandle': clipHandle,
+  'manipulators/deleteIfHandleOutsideLimits': deleteIfHandleOutsideLimits,
+  'manipulators/getHandleMovingOptions': getHandleMovingOptions,
   'manipulators/getHandleNearImagePoint': getHandleNearImagePoint,
   'manipulators/handleActivator': handleActivator,
   'manipulators/moveAllHandles': moveAllHandles,

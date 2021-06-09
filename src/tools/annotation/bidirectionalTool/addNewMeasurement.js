@@ -1,7 +1,10 @@
 import external from './../../../externalModules.js';
 import EVENTS from './../../../events.js';
-import { moveNewHandle } from './../../../manipulators/index.js';
-import anyHandlesOutsideImage from './../../../manipulators/anyHandlesOutsideImage.js';
+import {
+  moveNewHandle,
+  anyHandlesOutsideDisplayedArea,
+  anyHandlesOutsideImage,
+} from './../../../manipulators/index.js';
 import {
   addToolState,
   removeToolState,
@@ -49,7 +52,9 @@ export default function(evt, interactionType) {
         return;
       }
       const { handles, longestDiameter, shortestDiameter } = measurementData;
-      const hasHandlesOutside = anyHandlesOutsideImage(eventData, handles);
+      const hasHandlesOutside =
+        anyHandlesOutsideImage(eventData, handles) ||
+        anyHandlesOutsideDisplayedArea(eventData, handles);
       const longestDiameterSize = parseFloat(longestDiameter) || 0;
       const shortestDiameterSize = parseFloat(shortestDiameter) || 0;
       const isTooSmal = longestDiameterSize < 1 || shortestDiameterSize < 1;

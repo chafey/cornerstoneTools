@@ -27,7 +27,7 @@ export default class MouseCursor {
   /**
    * Returns an SVG of the icon only.
    *
-   * @param  {Object} options - An object which overrides default properties of the returned SVG.
+   * @param  {Object} [options={}] - An object which overrides default properties of the returned SVG.
    * @returns {Blob} The SVG of the icon.
    */
   getIconSVG(options = {}) {
@@ -39,7 +39,7 @@ export default class MouseCursor {
   /**
    *  Returns a string representation of the SVG of the icon only.
    *
-   * @param  {Object} options - An object which overrides default properties of the returned SVG.
+   * @param  {Object} [options={}] - An object which overrides default properties of the returned SVG.
    * @returns {string} The stringified SVG of the icon.
    */
   getIconSVGString(options = {}) {
@@ -49,7 +49,7 @@ export default class MouseCursor {
   /**
    * Returns an SVG of the icon + pointer.
    *
-   * @param  {Object} options - An object which overrides default properties of the returned SVG.
+   * @param  {Object} [options={}] - An object which overrides default properties of the returned SVG.
    * @returns {Blob} The SVG of the icon + pointer..
    */
   getIconWithPointerSVG(options = {}) {
@@ -61,7 +61,7 @@ export default class MouseCursor {
   /**
    * Returns a string representation of the SVG of the icon + pointer.
    *
-   * @param  {Object} options - An object which overrides default properties of the returned SVG.
+   * @param  {Object} [options={}] - An object which overrides default properties of the returned SVG.
    * @returns {string} The stringified SVG of the icon + pointer.
    */
   getIconWithPointerString(options = {}) {
@@ -82,7 +82,7 @@ export default class MouseCursor {
   /**
    * Generates a string representation of the icon + pointer.
    *
-   * @param  {Object} options - An object which overrides default properties of the returned string.
+   * @param  {Object} [options={}] - An object which overrides default properties of the returned string.
    * @returns {string} The SVG as a string.
    */
   _generateIconWithPointerSVGString(options = {}) {
@@ -111,7 +111,7 @@ export default class MouseCursor {
   /**
    * Generates a string representation of the icon.
    *
-   * @param  {Object} options - An object which overrides default properties of the returned string.
+   * @param  {Object} [options={}] - An object which overrides default properties of the returned string.
    * @returns {string} The SVG as a string.
    */
   _generateIconSVGString(options = {}) {

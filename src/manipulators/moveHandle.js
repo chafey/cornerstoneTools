@@ -1,14 +1,14 @@
 import EVENTS from '../events.js';
 import external from '../externalModules.js';
-import anyHandlesOutsideImage from './anyHandlesOutsideImage.js';
-import { removeToolState } from '../stateManagement/toolState.js';
+import deleteIfHandleOutsideLimits from './deleteIfHandleOutsideLimits.js';
 import triggerEvent from '../util/triggerEvent.js';
-import { clipToBox } from '../util/clip.js';
+import clipHandle from './clipHandle.js';
 import { state } from './../store/index.js';
 import getActiveTool from '../util/getActiveTool';
 import BaseAnnotationTool from '../tools/base/BaseAnnotationTool';
 import { getLogger } from '../util/logger.js';
 import { getModule } from '../store';
+import getHandleMovingOptions from './getHandleMovingOptions.js';
 
 const logger = getLogger('manipulators:moveHandle');
 
@@ -45,9 +45,11 @@ const _upOrEndEvents = {
  * @param {*} toolName
  * @param {*} annotation
  * @param {*} handle
- * @param {*} [options={}]
- * @param {Boolean}  [options.deleteIfHandleOutsideImage]
- * @param {Boolean}  [options.preventHandleOutsideImage]
+ * @param  {?Object} [options]
+ * @param {Boolean} [options.deleteIfHandleOutsideDisplayedArea]
+ * @param {Boolean} [options.deleteIfHandleOutsideImage]
+ * @param {Boolean} [options.preventHandleOutsideDisplayedArea]
+ * @param {Boolean} [options.preventHandleOutsideImage]
  * @param {*} [interactionType=mouse]
  * @param {function} doneMovingCallback
  * @returns {undefined}
@@ -57,18 +59,11 @@ export default function(
   toolName,
   annotation,
   handle,
-  options = {},
+  options,
   interactionType = 'mouse',
   doneMovingCallback
 ) {
-  // Use global defaults, unless overidden by provided options
-  options = Object.assign(
-    {
-      deleteIfHandleOutsideImage: state.deleteIfHandleOutsideImage,
-      preventHandleOutsideImage: state.preventHandleOutsideImage,
-    },
-    options
-  );
+  let internalOptions = getHandleMovingOptions(options);
 
   const element = evtDetail.element;
   const dragHandler = _dragHandler.bind(
@@ -76,7 +71,7 @@ export default function(
     toolName,
     annotation,
     handle,
-    options,
+    internalOptions,
     interactionType
   );
   // So we don't need to inline the entire `upOrEndHandler` function
@@ -86,7 +81,7 @@ export default function(
       evtDetail,
       annotation,
       handle,
-      options,
+      internalOptions,
       interactionType,
       {
         dragHandler,
@@ -104,7 +99,7 @@ export default function(
       evtDetail,
       annotation,
       handle,
-      options,
+      internalOptions,
       interactionType,
       {
         dragHandler,
@@ -178,9 +173,7 @@ function _dragHandler(
   // TODO: A way to not flip this for textboxes on annotations
   annotation.invalidated = true;
 
-  if (options.preventHandleOutsideImage) {
-    clipToBox(handle, image);
-  }
+  clipHandle(evt.detail, handle, options);
 
   external.cornerstone.updateImage(element);
 
@@ -206,7 +199,7 @@ function _cancelEventHandler(
   evtDetail,
   annotation,
   handle,
-  options = {},
+  options,
   interactionType,
   { dragHandler, upOrEndHandler },
   doneMovingCallback
@@ -232,7 +225,7 @@ function _upOrEndHandler(
   evtDetail,
   annotation,
   handle,
-  options = {},
+  options,
   interactionType,
   { dragHandler, upOrEndHandler },
   doneMovingCallback
@@ -262,7 +255,7 @@ function _endHandler(
   evtDetail,
   annotation,
   handle,
-  options = {},
+  options,
   interactionType,
   { dragHandler, upOrEndHandler },
   doneMovingCallback,
@@ -285,13 +278,7 @@ function _endHandler(
     element.removeEventListener(eventType, upOrEndHandler);
   });
 
-  // If any handle is outside the image, delete the tool data
-  if (
-    options.deleteIfHandleOutsideImage &&
-    anyHandlesOutsideImage(evtDetail, annotation.handles)
-  ) {
-    removeToolState(element, toolName, annotation);
-  }
+  deleteIfHandleOutsideLimits(evtDetail, toolName, annotation, options);
 
   // // TODO: What dark magic makes us want to handle TOUCH_PRESS differently?
   // if (evt.type === EVENTS.TOUCH_PRESS) {

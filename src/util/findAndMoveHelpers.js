@@ -89,14 +89,16 @@ const findHandleDataNearImagePoint = function(
  * @function moveAnnotation
  * @memberof Util
  *
- * @param  {Event}   evt           The event.
- * @param  {Object}  tool The tool that the annotation belongs to.
- * @param  {string}  tool.name
- * @param  {Object}  [tool.options={}]
+ * @param  {Event} evt The event.
+ * @param  {Object} tool The tool that the annotation belongs to.
+ * @param  {string} tool.name
+ * @param  {?Object} [tool.options={}]
+ * @param  {Boolean} [tool.options.preventHandleOutsideDisplayedArea]
  * @param  {Boolean} [tool.options.preventHandleOutsideImage]
+ * @param  {Boolean} [tool.options.deleteIfHandleOutsideDisplayedArea]
  * @param  {Boolean} [tool.options.deleteIfHandleOutsideImage]
- * @param  {Object}  annotation The toolData that corresponds to the annotation.
- * @param  {String}  [interactionType=mouse]
+ * @param  {Object} annotation The toolData that corresponds to the annotation.
+ * @param  {String} [interactionType=mouse]
  * @returns {undefined}
  */
 const moveAnnotation = function(

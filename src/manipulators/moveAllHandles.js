@@ -1,14 +1,14 @@
 import EVENTS from '../events.js';
 import external from '../externalModules.js';
-import anyHandlesOutsideImage from './anyHandlesOutsideImage.js';
-import { removeToolState } from '../stateManagement/toolState.js';
+import deleteIfHandleOutsideLimits from './deleteIfHandleOutsideLimits.js';
 import triggerEvent from '../util/triggerEvent.js';
-import { clipToBox } from '../util/clip.js';
+import clipHandle from './clipHandle.js';
 import { state } from './../store/index.js';
 import getActiveTool from '../util/getActiveTool';
 import BaseAnnotationTool from '../tools/base/BaseAnnotationTool';
 import { getLogger } from '../util/logger.js';
 import { getModule } from '../store';
+import getHandleMovingOptions from './getHandleMovingOptions.js';
 
 const logger = getLogger('manipulators:moveAllHandles');
 
@@ -36,15 +36,17 @@ const _upOrEndEvents = {
  * @function moveAllHandles
  * @memberof Manipulators
  *
- * @param {*}        evtDetail
- * @param {*}        evtDetail.element
- * @param {String}   toolName
- * @param {*}        annotation
- * @param {*}        [handle=null] - not needed by moveAllHandles, but keeps call signature the same as `moveHandle`
- * @param {Object}   [options={}]
- * @param {Boolean}  [options.deleteIfHandleOutsideImage]
- * @param {Boolean}  [options.preventHandleOutsideImage]
- * @param {string}   [interactionType=mouse]
+ * @param {*} evtDetail
+ * @param {*} evtDetail.element
+ * @param {String} toolName
+ * @param {*} annotation
+ * @param {*} [handle=null] - not needed by moveAllHandles, but keeps call signature the same as `moveHandle`
+ * @param {?Object} [options]
+ * @param {Boolean} [options.deleteIfHandleOutsideDisplayedArea]
+ * @param {Boolean} [options.deleteIfHandleOutsideImage]
+ * @param {Boolean} [options.preventHandleOutsideDisplayedArea]
+ * @param {Boolean} [options.preventHandleOutsideImage]
+ * @param {string} [interactionType=mouse]
  * @param {function} [doneMovingCallback]
  * @returns {undefined}
  */
@@ -53,24 +55,17 @@ export default function(
   toolName,
   annotation,
   handle,
-  options = {},
+  options,
   interactionType = 'mouse',
   doneMovingCallback
 ) {
-  // Use global defaults, unless overidden by provided options
-  options = Object.assign(
-    {
-      deleteIfHandleOutsideImage: state.deleteIfHandleOutsideImage,
-      preventHandleOutsideImage: state.preventHandleOutsideImage,
-    },
-    options
-  );
+  let internalOptions = getHandleMovingOptions(options);
 
   const dragHandler = _dragHandler.bind(
     this,
     toolName,
     annotation,
-    options,
+    internalOptions,
     interactionType
   );
   // So we don't need to inline the entire `upOrEndHandler` function
@@ -78,7 +73,7 @@ export default function(
     _upOrEndHandler(
       toolName,
       annotation,
-      options,
+      internalOptions,
       interactionType,
       {
         dragHandler,
@@ -94,7 +89,7 @@ export default function(
     _cancelEventHandler.bind(
       null,
       annotation,
-      options,
+      internalOptions,
       interactionType,
       {
         dragHandler,
@@ -117,13 +112,7 @@ export default function(
   });
 }
 
-function _dragHandler(
-  toolName,
-  annotation,
-  options = {},
-  interactionType,
-  evt
-) {
+function _dragHandler(toolName, annotation, options, interactionType, evt) {
   const { element, image, buttons } = evt.detail;
   const { x, y } = evt.detail.deltaPoints.image;
 
@@ -149,9 +138,7 @@ function _dragHandler(
     handle.x += x;
     handle.y += y;
 
-    if (options.preventHandleOutsideImage) {
-      clipToBox(handle, image);
-    }
+    clipHandle(evt.detail, handle, options);
   }
 
   external.cornerstone.updateImage(element);
@@ -178,7 +165,7 @@ function _dragHandler(
 
 function _cancelEventHandler(
   annotation,
-  options = {},
+  options,
   interactionType,
   { dragHandler, upOrEndHandler },
   element,
@@ -201,7 +188,7 @@ function _cancelEventHandler(
 function _upOrEndHandler(
   toolName,
   annotation,
-  options = {},
+  options,
   interactionType,
   { dragHandler, upOrEndHandler },
   evt,
@@ -212,13 +199,7 @@ function _upOrEndHandler(
 
   manipulatorStateModule.setters.removeActiveManipulatorForElement(element);
 
-  // If any handle is outside the image, delete the tool data
-  if (
-    options.deleteIfHandleOutsideImage &&
-    anyHandlesOutsideImage(eventData, annotation.handles)
-  ) {
-    removeToolState(element, toolName, annotation);
-  }
+  deleteIfHandleOutsideLimits(eventData, toolName, annotation, options);
 
   _endHandler(
     annotation,
@@ -236,7 +217,7 @@ function _upOrEndHandler(
 
 function _endHandler(
   annotation,
-  options = {},
+  options,
   interactionType,
   { dragHandler, upOrEndHandler },
   element,

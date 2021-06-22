@@ -54,6 +54,7 @@ import drawLink from './drawing/drawLink.js';
 import drawLinkedTextBox from './drawing/drawLinkedTextBox.js';
 import drawHandles from './drawing/drawHandles.js';
 
+import getActiveTool from './util/getActiveTool';
 import getLuminance from './util/getLuminance.js';
 import getROITextBoxCoords from './util/getROITextBoxCoords';
 import copyPoints from './util/copyPoints.js';
@@ -131,6 +132,7 @@ export const lib = {
   'drawing/drawHandles': drawHandles,
   'drawing/textBoxWidth': textBoxWidth,
 
+  'util/getActiveTool': getActiveTool,
   'util/getLuminance': getLuminance,
   'util/getROITextBoxCoords': getROITextBoxCoords,
   'util/copyPoints': copyPoints,

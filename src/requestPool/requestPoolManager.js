@@ -5,19 +5,30 @@ const requestPool = {
   interaction: [],
   thumbnail: [],
   prefetch: [],
+  custom: [],
 };
 
 const numRequests = {
   interaction: 0,
   thumbnail: 0,
   prefetch: 0,
+  custom: 0,
 };
 
 let maxNumRequests = {
   interaction: 6,
   thumbnail: 6,
   prefetch: 5,
+  custom: 5,
 };
+
+const requestTypesPriority = {
+  prefetch: -5,
+  interactive: 0,
+  thumbnail: 5,
+};
+
+const CUSTOM = 'custom';
 
 let awake = false;
 const grabDelay = 20;
@@ -30,16 +41,28 @@ function addRequest(
   doneCallback,
   failCallback,
   addToBeginning,
-  options = {}
+  options = {},
+  customPriority
 ) {
   if (!requestPool.hasOwnProperty(type)) {
     throw new Error(
-      'Request type must be one of interaction, thumbnail, or prefetch'
+      'Request type must be one of interaction, thumbnail, prefetch, or custom'
     );
   }
 
   if (!element || !imageId) {
     return;
+  }
+
+  if (type === CUSTOM && !customPriority) {
+    throw new Error(
+      'Request priority should be defined if using a custom type'
+    );
+  }
+
+  // Using custom priority for prefetch, interaction, and thumbnail
+  if (customPriority) {
+    requestTypesPriority[type] = customPriority;
   }
 
   // Describe the request
@@ -86,7 +109,7 @@ function clearRequestStack(type) {
   // Console.log('clearRequestStack');
   if (!requestPool.hasOwnProperty(type)) {
     throw new Error(
-      'Request type must be one of interaction, thumbnail, or prefetch'
+      'Request type must be one of interaction, thumbnail, prefetch, or custom'
     );
   }
 
@@ -141,13 +164,9 @@ function sendRequest(requestDetails) {
   }
 
   function requestTypeToLoadPriority(requestDetails) {
-    if (requestDetails.type === 'prefetch') {
-      return -5;
-    } else if (requestDetails.type === 'interactive') {
-      return 0;
-    } else if (requestDetails.type === 'thumbnail') {
-      return 5;
-    }
+    const { type } = requestDetails;
+
+    return requestTypesPriority[type];
   }
 
   const priority = requestTypeToLoadPriority(requestDetails);
@@ -190,10 +209,15 @@ function startGrabbing() {
     interaction: Math.max(maxSimultaneousRequests, 1),
     thumbnail: Math.max(maxSimultaneousRequests - 2, 1),
     prefetch: Math.max(maxSimultaneousRequests - 1, 1),
+    custom: Math.max(maxSimultaneousRequests - 1, 1),
   };
 
   const currentRequests =
-    numRequests.interaction + numRequests.thumbnail + numRequests.prefetch;
+    numRequests.interaction +
+    numRequests.thumbnail +
+    numRequests.prefetch +
+    numRequests.custom;
+
   const requestsToSend = maxSimultaneousRequests - currentRequests;
 
   for (let i = 0; i < requestsToSend; i++) {
@@ -227,10 +251,15 @@ function getNextRequest() {
     return requestPool.prefetch.shift();
   }
 
+  if (requestPool.custom.length && numRequests.custom < maxNumRequests.custom) {
+    return requestPool.custom.shift();
+  }
+
   if (
     !requestPool.interaction.length &&
     !requestPool.thumbnail.length &&
-    !requestPool.prefetch.length
+    !requestPool.prefetch.length &&
+    !requestPool.custom.length
   ) {
     awake = false;
   }

@@ -8,7 +8,7 @@ describe('clearRequestStack with an invalid type', function() {
     const nonExistantType = 'NotAnExistingType';
 
     expect(() => requestPoolManager.clearRequestStack(nonExistantType)).toThrow(
-      'Request type must be one of interaction, thumbnail, or prefetch'
+      'Request type must be one of interaction, thumbnail, prefetch, or custom'
     );
   });
 });
@@ -46,5 +46,23 @@ describe('addRequest', function() {
     expect(interactionStack[0].imageId).toEqual('request3');
     expect(interactionStack[1].imageId).toEqual('request1');
     expect(interactionStack[2].imageId).toEqual('request2');
+  });
+});
+
+describe('customRequest', function() {
+  it('should be defined with custom priority', function() {
+    const requestDetails = [
+      {},
+      'request1',
+      'custom',
+      false,
+      () => {}, // DoneCallback
+      () => {}, // FailCallback,
+      {},
+    ];
+
+    expect(() => requestPoolManager.addRequest(...requestDetails)).toThrow(
+      'Request priority should be defined if using a custom type'
+    );
   });
 });

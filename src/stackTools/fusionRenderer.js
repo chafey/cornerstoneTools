@@ -82,7 +82,7 @@ export default class FusionRenderer {
         } else {
           // If no imageId was returned from the findImage function.
           // This means that there is no relevant image to display.
-          cornerstone.setLayerImage(element, undefined, currentLayerId);
+          cornerstone.setLayerImage(element, null, currentLayerId);
           cornerstone.setActiveLayer(element, baseLayerId);
           cornerstone.updateImage(element);
         }
